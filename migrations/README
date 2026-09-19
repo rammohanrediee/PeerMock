@@ -1,0 +1,4 @@
+PeerMock uses an asynchronous SQLAlchemy engine with Alembic.
+
+The migration environment loads PEERMOCK_DATABASE_URL through the application settings
+and imports peermock.db.models so every model is registered in Base.metadata.

@@ -1,0 +1,55 @@
+[build-system]
+requires = ["hatchling>=1.32,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "peermock"
+version = "0.1.0"
+description = "A secure mock-interview scheduling API built through guided learning."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "alembic>=1.20,<2",
+  "email-validator>=2.3,<3",
+  "fastapi>=0.141.1,<1",
+  "psycopg[binary]>=3.3.5,<4",
+  "pydantic-settings>=2.15,<3",
+  "pwdlib[argon2]>=0.3.1,<1",
+  "PyJWT>=2.14,<3",
+  "python-multipart>=0.0.32,<1",
+  "sqlalchemy[asyncio]>=2.0.52,<3",
+  "uvicorn[standard]>=0.53,<1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "httpx>=0.28.1,<1",
+  "mypy>=2.3,<3",
+  "pytest>=9.1,<10",
+  "pytest-cov>=7.1,<8",
+  "ruff>=0.16.7,<1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/peermock"]
+
+[tool.pytest.ini_options]
+addopts = "-q --strict-markers --tb=short --cov=peermock --cov-report=term-missing"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["peermock"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+files = ["src", "tests"]
