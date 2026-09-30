@@ -16,8 +16,8 @@ is never a completion gate; record the observation, implementation decision and 
 
 - **Season 0 — Reproducible foundation:** Complete
 - **Season 1 — Domain and persistence:** Complete
-- **Season 2 — Availability and booking API:** Active
-- **Season 3 — Identity and authorization:** Pending
+- **Season 2 — Availability and booking API:** Complete
+- **Season 3 — Identity and authorization:** Active
 - **Season 4 — Concurrency and consistency:** Pending
 - **Season 5 — Evidence and validation release:** Pending
 - **Season 6 — Reliable background work:** Deferred until core completion
@@ -91,15 +91,24 @@ implemented allowed and rejected requests.
   Liveness returns a stable success response. Readiness verifies the database and returns
   a sanitized 503 contract for database failure or an unexpected result. Four focused
   endpoint tests pass, including dependency-controlled success and failure paths.
-- [ ] **S2E2 — Active** Add mentor availability/slot create, read and list behavior.
-  Create, read and list service/router work is in progress. The router dependency is
-  correctly injected and its standalone OpenAPI contract exposes the request body,
-  mentor query parameter and HTTP 201 response without exposing the database session.
-  Application router composition, behavior tests and final formatting remain open.
-- [ ] **S2E3** Add booking state transitions and conflict behavior.
-- [ ] **S2E4** Add cancellation and prove slot state remains consistent.
-- [ ] **S2E5** Verify the temporary unauthenticated vertical slice without describing it
-  as secure or production-ready.
+- [x] **S2E2** Add mentor availability/slot create, read and list behavior.
+  The versioned API exposes create, read and chronologically ordered list operations with
+  typed request/response contracts and stable creation status. One focused HTTP contract
+  test and one rollback-safe PostgreSQL service flow cover the meaningful boundaries
+  without duplicative mock tests. Full database-enabled suite: 15 passed; Ruff formatting
+  and lint, strict mypy and Alembic drift/head checks pass.
+- [x] **S2E3** Add booking state transitions and conflict behavior. Real HTTP-to-
+  PostgreSQL tests cover successful booking, sequential slot conflict, overlapping
+  student-schedule conflict, permitted adjacent booking, and the future-start rule.
+- [x] **S2E4** Add cancellation and prove slot state remains consistent. Student
+  cancellation reopens the future slot while retaining cancelled history; mentor
+  withdrawal cancels a booked slot and its confirmed booking without reopening it.
+  Foreign ownership, repeated cancellation and elapsed-slot withdrawal have stable
+  denied responses and leave protected state unchanged.
+- [x] **S2E5** Verify the temporary unauthenticated vertical slice without describing it
+  as secure or production-ready. A rollback-safe real PostgreSQL flow creates, lists,
+  books and cancels a synthetic slot; temporary query-parameter identity remains a
+  known non-production limitation.
 
 Finale gate: one slot can be created, listed, booked and cancelled with predictable
 errors and meaningful service/API tests.
@@ -114,11 +123,30 @@ Study/apply reminder: study the relevant proxy, authentication and access-contro
 sections; use Burp only against local PeerMock to alter identifiers or tokens and prove
 that the server enforces authority.
 
-- [ ] **S3E1** Add registration and Argon2 password hashing.
-- [ ] **S3E2** Add signed, expiring login tokens and current-user resolution.
-- [ ] **S3E3** Enforce student, mentor and coordinator role capabilities.
-- [ ] **S3E4** Enforce owner/assignment predicates for slots, bookings and feedback.
-- [ ] **S3E5** Add feedback submission/release and complete cross-identity security tests.
+- [x] **S3E1** Add registration and Argon2 password hashing. Public registration accepts
+  student or mentor accounts but rejects coordinator self-registration, normalizes email,
+  stores only an Argon2 hash and returns a password-safe response. A rollback-safe real
+  PostgreSQL HTTP test covers success, duplicate email and invalid privileged role.
+- [x] **S3E2** Add signed, expiring login tokens, current-user resolution and Google
+  identity linking. Password tokens validate HS256 signature, issuer, audience, expiry
+  and UUID subject; current users and roles come from PostgreSQL. Google verification
+  requires a verified email and stable subject; linking prefers provider subject, while
+  first-time email linking preserves the local user's name and role. New OAuth-only
+  accounts select student or mentor and receive a normal PeerMock token. A synchronized
+  PostgreSQL race regression proves concurrent first sign-ins resolve to one local user.
+  Final gate: 28 PostgreSQL-enabled tests, Ruff, strict mypy and Alembic head/drift pass.
+- [x] **S3E3** Enforce role capabilities on the implemented role-limited operations using
+  the stored current-user role. Mentor-only slot creation/withdrawal and student-only
+  booking creation/cancellation are covered by allowed-role controls and denied-role
+  tests. Coordinator access is denied on these mutations; no coordinator-only operation
+  exists in the current API.
+- [x] **S3E4** Enforce owner predicates for implemented slot and booking mutations.
+  Routes derive mentor/student IDs from the authenticated database user; service queries
+  hide foreign cancellation/withdrawal as not found. Existing PostgreSQL flows prove
+  legitimate and foreign-owner behavior without relying on query owner IDs. Feedback
+  assignment begins with its implementation in S3E5.
+- [ ] **S3E5 — Active** Add feedback submission/release and complete cross-identity
+  security tests.
 
 Finale gate: client identifiers cannot grant access; foreign private objects stay hidden
 and legitimate role journeys still work.
