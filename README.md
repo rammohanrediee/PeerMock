@@ -153,4 +153,4 @@ For more detail, see [PRODUCT.md](PRODUCT.md), [ARCHITECTURE.md](ARCHITECTURE.md
 
 ## License
 
-No license has been added yet. All rights are reserved unless a license is introduced.
+PeerMock is available under the [MIT License](LICENSE).

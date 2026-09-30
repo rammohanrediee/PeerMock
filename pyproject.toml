@@ -5,7 +5,8 @@ build-backend = "hatchling.build"
 [project]
 name = "peermock"
 version = "0.1.0"
-description = "A secure mock-interview scheduling API built through guided learning."
+description = "A secure mock-interview scheduling API."
+license = "MIT"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -19,6 +20,7 @@ dependencies = [
   "python-multipart>=0.0.32,<1",
   "sqlalchemy[asyncio]>=2.0.52,<3",
   "uvicorn[standard]>=0.53,<1",
+  "google-auth[requests]>=2.40,<3",
 ]
 
 [project.optional-dependencies]
